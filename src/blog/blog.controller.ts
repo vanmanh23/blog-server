@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -12,7 +13,8 @@ import { BlogService } from './blog.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateBlogDto } from './dto/createBlog.dto';
 import * as Multer from 'multer';
-// import { UpdateBlogDto } from './dto/updateBlog.dto';
+import { multerOptions } from 'src/constants/multer.config';
+import { UpdateBlogDto } from './dto/updateBlog.dto';
 
 @Controller('blog')
 export class BlogController {
@@ -24,27 +26,48 @@ export class BlogController {
     return findAll;
   }
   @Post('create')
-  @UseInterceptors(FileInterceptor('imageurl'))
+  @UseInterceptors(FileInterceptor('imageurl', multerOptions))
   async createBlog(
     @Body()
     blogData: CreateBlogDto,
     @UploadedFile() file: Multer.File,
   ) {
-    const imageUrl = file ? file.filename : null;
-    return this.blogService.create({ ...blogData, imageurl: imageUrl });
+    if (!file) {
+      throw new Error('Empty file');
+    }
+    const uploadResult = file.path;
+    const blog = { ...blogData, imageurl: uploadResult };
+    return this.blogService.create(blog);
   }
   @Delete('/remove/:id')
   async deleteBlog(@Param('id') id: string) {
     return this.blogService.remove(id);
   }
 
-  // @Patch('/update/:id')
-  // async updateBlog(
-  //   @Param('id') id: string,
-  //   @Body() updateBlogDto: UpdateBlogDto,
-  // ) {
-  //   console.log('id', id);
-  //   console.log('test', updateBlogDto);
-  //   return this.blogService.update(id, updateBlogDto);
-  // }
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  uploadFile(@UploadedFile() file: Multer.File) {
+    return {
+      url: file.path, // URL ảnh được upload
+      public_id: file.filename, // ID ảnh trên Cloudinary
+    };
+  }
+  @Patch('update/:id')
+  @UseInterceptors(FileInterceptor('imageurl', multerOptions))
+  async updateBlog(
+    @Param('id') id: string,
+    @Body() blogData: UpdateBlogDto,
+    @UploadedFile() file?: Multer.File,
+  ) {
+    const updatedBlogData = { ...blogData };
+
+    // Nếu có file mới được upload
+    if (file) {
+      const uploadResult = file.path; // URL ảnh trên Cloudinary
+      updatedBlogData.imageurl = uploadResult;
+    }
+
+    // Gọi service để cập nhật blog
+    return this.blogService.update(id, updatedBlogData);
+  }
 }

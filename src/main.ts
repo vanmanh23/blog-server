@@ -1,15 +1,13 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { corsOptions } from './constants/cors';
 
-async function bootstrap() {
-  const uploadsDir = join(__dirname, '..', 'uploads');
-  if (!existsSync(uploadsDir)) {
-    mkdirSync(uploadsDir);
-  }
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 3000);
-}
-bootstrap();
+(async () => {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: corsOptions,
+  });
+
+  const port = 3000;
+  await app.listen(port, () => console.log(`[Server started on port ${port}]`));
+})();

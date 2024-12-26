@@ -3,10 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { BlogModule } from './blog/blog.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { config } from 'dotenv';
-config();
+// import { ServeStaticModule } from '@nestjs/serve-static';
+// import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     // TypeOrmModule.forRoot({
@@ -23,13 +22,14 @@ config();
     //   type: 'postgres',
     //   url: 'postgresql://neondb_owner:VtRS71yxmbgT@ep-nameless-truth-a5i4aj1g.us-east-2.aws.neon.tech/neondb?sslmode=require',
     // }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // Thư mục gốc chứa ảnh
-      serveRoot: '/images', // URL truy cập (http://localhost:3000/images)
-      serveStaticOptions: {
-        index: false, // Prevent looking for index.html
-      },
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'uploads'), // Thư mục gốc chứa ảnh
+    //   serveRoot: '/images', // URL truy cập (http://localhost:3000/images)
+    //   serveStaticOptions: {
+    //     index: false, // Prevent looking for index.html
+    //   },
+    // }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     UserModule,
     BlogModule,
   ],
