@@ -11,7 +11,7 @@ export const multerOptions = {
     cloudinary: cloudinary,
     params: {
       folder: 'user-uploads', // Tên folder trên Cloudinary
-      allowed_formats: ['jpg', 'png', 'jpeg'], // Các định dạng cho phép
+      allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp', 'tif', 'tiff'], // Các định dạng cho phép
     } as CustomParams,
   }),
 };

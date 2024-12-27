@@ -38,14 +38,6 @@ export class BlogService {
       data: blog,
     };
   }
-  // async remove(id: string) {
-  //   const deleteData = await this.blogRepository.delete(id);
-  //   return {
-  //     msg: 'Data Deleted successfully',
-  //     status: HttpStatus.OK,
-  //     data: deleteData,
-  //   };
-  // }
   async remove(id: string) {
     const deleteData = await this.prisma.blog.delete({ where: { id } });
     return {
@@ -63,17 +55,28 @@ export class BlogService {
     if (!blog) {
       throw new Error('Blog not found');
     }
+
+    const updateData: any = {
+      title: updatedBlogData.title,
+      text: updatedBlogData.text,
+      heading: updatedBlogData.heading,
+      content: updatedBlogData.content,
+    };
+
+    // Chỉ thêm `imageUrl` nếu nó tồn tại trong dữ liệu đầu vào
+    if (updatedBlogData.imageurl) {
+      updateData.imageUrl = updatedBlogData.imageurl;
+    }
+
     const updatedBlog = await this.prisma.blog.update({
       where: { id },
-      data: {
-        title: updatedBlogData.title,
-        text: updatedBlogData.text,
-        heading: updatedBlogData.heading,
-        content: updatedBlogData.content,
-        imageUrl: updatedBlogData.imageurl,
-      },
+      data: updateData,
     });
 
-    return updatedBlog;
+    return {
+      msg: 'Data updated successfully',
+      status: HttpStatus.OK,
+      data: updatedBlog,
+    };
   }
 }
