@@ -70,4 +70,8 @@ export class BlogController {
     // Gọi service để cập nhật blog
     return this.blogService.update(id, updatedBlogData);
   }
+  @Get(':id')
+  async findBlogById(@Param('id') id: string) {
+    return this.blogService.findBlogById(id);
+  }
 }
